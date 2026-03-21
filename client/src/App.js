@@ -1,10 +1,11 @@
 import React from "react";
+import UploadResume from "./pages/UploadResume";
 
 function App() {
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>🚀 CareerCompass AI</h1>
-      <p>Upload your resume and get career insights</p>
+    <div>
+      <h1 style={{ textAlign: "center" }}>🚀 CareerCompass AI</h1>
+      <UploadResume />
     </div>
   );
 }
