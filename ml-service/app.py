@@ -7,9 +7,24 @@ nlp = spacy.load("en_core_web_sm")
 
 # Predefined skill list
 SKILL_LIST = [
-    "python", "java", "c++", "javascript", "react", "node", "express",
-    "mongodb", "mysql", "sql", "html", "css", "aws", "docker",
-    "machine learning", "data science", "pandas", "numpy", "tensorflow"
+    # Languages
+    "python", "java", "c++", "javascript", "typescript", "kotlin", "swift", "go", "rust",
+    # Frontend
+    "react", "html", "css", "tailwind", "redux", "vue", "angular",
+    # Backend
+    "node", "express", "rest api", "graphql", "flask", "django",
+    # Database
+    "mongodb", "mysql", "sql", "postgresql", "firebase", "redis",
+    # DevOps / Cloud
+    "docker", "kubernetes", "aws", "azure", "gcp", "terraform", "linux", "ci/cd", "git",
+    # Data / ML
+    "machine learning", "pandas", "numpy", "tensorflow", "pytorch", "matplotlib", "data science",
+    # Mobile
+    "react native", "flutter", "android", "ios",
+    # Design
+    "figma", "adobe xd", "wireframing", "prototyping", "user research",
+    # Security
+    "networking", "ethical hacking", "firewalls", "siem", "cryptography",
 ]
 
 @app.route("/analyze", methods=["POST"])

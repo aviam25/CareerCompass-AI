@@ -23,8 +23,7 @@ export default function Hero({ onAnalyze, onHowItWorks }) {
 
         <p className="text-lg max-w-xl mx-auto mb-10 leading-relaxed fade-up-2"
           style={{ color:"var(--text-2)", fontFamily:'Plus Jakarta Sans,sans-serif' }}>
-          Upload your resume. Our AI extracts your skills, scores you against real job roles,
-          and tells you exactly what to learn next.
+          Drop your resume. Discover your skills, gaps, and the career path built for you..
         </p>
 
         {/* CTA */}

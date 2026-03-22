@@ -23,9 +23,46 @@ mongoose
   .catch((err) => console.error("❌ MongoDB connection error:", err.message));
 
 const JOB_ROLES = {
-  "frontend developer": ["html", "css", "javascript", "react"],
-  "backend developer": ["node", "express", "mongodb", "sql"],
-  "data scientist": ["python", "pandas", "numpy", "machine learning"],
+  "frontend developer": {
+    skills: ["html", "css", "javascript", "react", "typescript", "tailwind", "redux"],
+    emoji: "🎨"
+  },
+  "backend developer": {
+    skills: ["node", "express", "mongodb", "sql", "python", "rest api", "docker"],
+    emoji: "⚙️"
+  },
+  "data scientist": {
+    skills: ["python", "pandas", "numpy", "machine learning", "tensorflow", "sql", "matplotlib"],
+    emoji: "📊"
+  },
+  "devops engineer": {
+    skills: ["docker", "kubernetes", "aws", "linux", "git", "ci/cd", "terraform"],
+    emoji: "🔧"
+  },
+  "mobile developer": {
+    skills: ["react native", "flutter", "android", "ios", "kotlin", "swift", "firebase"],
+    emoji: "📱"
+  },
+  "ui/ux designer": {
+    skills: ["figma", "css", "html", "wireframing", "prototyping", "user research", "adobe xd"],
+    emoji: "✏️"
+  },
+  "cybersecurity analyst": {
+    skills: ["networking", "linux", "python", "ethical hacking", "firewalls", "siem", "cryptography"],
+    emoji: "🔐"
+  },
+  "cloud engineer": {
+    skills: ["aws", "azure", "gcp", "docker", "kubernetes", "terraform", "linux"],
+    emoji: "☁️"
+  },
+  "ml engineer": {
+    skills: ["python", "tensorflow", "pytorch", "machine learning", "numpy", "pandas", "docker"],
+    emoji: "🤖"
+  },
+  "fullstack developer": {
+    skills: ["html", "css", "javascript", "react", "node", "express", "mongodb", "sql"],
+    emoji: "💻"
+  }
 };
 
 const storage = multer.diskStorage({
@@ -61,25 +98,39 @@ app.post("/upload", protect, upload.single("resume"), async (req, res) => {
 
     let results = {};
     for (let role in JOB_ROLES) {
-      const requiredSkills = JOB_ROLES[role];
-      const matched = requiredSkills.filter((skill) => userSkills.includes(skill));
-      const weight = 0.8;
-      const score = Math.round(
-        (matched.length / requiredSkills.length) * 100 * weight +
-        (userSkills.length > 5 ? 10 : 0)
-      );
-      const missing = requiredSkills.filter((skill) => !userSkills.includes(skill));
-      results[role] = { score: score.toFixed(0), missing };
-    }
+    const requiredSkills = JOB_ROLES[role].skills;  // ← .skills added
 
-    let bestRole = "";
-    let highestScore = 0;
-    for (let role in results) {
-      if (parseInt(results[role].score) > highestScore) {
-        highestScore = parseInt(results[role].score);
-        bestRole = role;
-      }
+    const matched = requiredSkills.filter(skill =>
+      userSkills.includes(skill)
+    );
+
+    const weight = 0.8;
+
+    const score = Math.round(
+      ((matched.length / requiredSkills.length) * 100) * weight +
+      (userSkills.length > 5 ? 10 : 0)
+    );
+
+    const missing = requiredSkills.filter(skill =>
+      !userSkills.includes(skill)
+    );
+
+  results[role] = {
+      score: score.toFixed(0),
+      missing,
+      emoji: JOB_ROLES[role].emoji
+    };
+  }
+
+  // ✅ Find best role
+  let bestRole = "";
+  let highestScore = 0;
+  for (let role in results) {
+    if (parseInt(results[role].score) > highestScore) {
+      highestScore = parseInt(results[role].score);
+      bestRole = role;
     }
+  }
 
     await Analysis.create({
       user: req.user._id,

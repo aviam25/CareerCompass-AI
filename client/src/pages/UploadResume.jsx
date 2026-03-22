@@ -104,13 +104,14 @@ export default function UploadResume() {
         {/* Results */}
         {hasResults && (
           <div className="space-y-5">
+
             {/* Best match banner */}
             {bestRole && (
               <div className="glass rounded-3xl p-6 flex items-center justify-between flex-wrap gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{color:"var(--text-3)"}}>Best Career Match</p>
                   <h3 className="text-xl font-bold capitalize gradient-text" style={{fontFamily:'Plus Jakarta Sans,sans-serif'}}>
-                    ⭐ {bestRole.role}
+                    {matchData[bestRole.role]?.emoji} {bestRole.role}
                   </h3>
                 </div>
                 <div className="text-right">
@@ -121,6 +122,7 @@ export default function UploadResume() {
             )}
 
             <div className="grid md:grid-cols-2 gap-5">
+
               {/* Skills */}
               {skills.length > 0 && (
                 <div className="glass rounded-2xl p-6">
@@ -134,28 +136,35 @@ export default function UploadResume() {
                 </div>
               )}
 
-              {/* Match */}
+              {/* Career Match */}
               {Object.keys(matchData).length > 0 && (
                 <div className="glass rounded-2xl p-6">
                   <h3 className="font-bold text-sm mb-4" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>🎯 Career Match</h3>
                   <div className="space-y-4">
-                    {Object.entries(matchData).map(([role, data]) => (
+                    {Object.entries(matchData)
+                      .sort((a, b) => parseInt(b[1].score) - parseInt(a[1].score))
+                      .map(([role, data]) => (
                       <div key={role}>
                         <div className="flex justify-between mb-1.5">
-                          <span className="text-sm font-medium capitalize" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>{role}</span>
+                          <span className="text-sm font-medium capitalize" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>
+                            {data.emoji} {role}
+                          </span>
                           <span className="text-sm font-bold" style={{color:scoreColor(data.score)}}>{data.score}%</span>
                         </div>
                         <div className="progress-track">
                           <div className="progress-fill" style={{width:`${data.score}%`, background:`linear-gradient(90deg, ${scoreColor(data.score)}, #6c63ff)`}} />
                         </div>
                         {data.missing?.length > 0 && (
-                          <p className="text-xs mt-1" style={{color:"var(--text-3)"}}>Missing: {data.missing.join(", ")}</p>
+                          <p className="text-xs mt-1" style={{color:"var(--text-3)"}}>
+                            Missing: {data.missing.slice(0, 4).join(", ")}{data.missing.length > 4 ? ` +${data.missing.length - 4} more` : ""}
+                          </p>
                         )}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
+
             </div>
           </div>
         )}
