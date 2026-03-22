@@ -1,142 +1,165 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 
-function UploadResume() {
-  const [file, setFile] = useState(null);
-  const [skills, setSkills] = useState([]);
+export default function UploadResume() {
+  const [file, setFile]           = useState(null);
+  const [isDragging, setDragging] = useState(false);
+  const [skills, setSkills]       = useState([]);
   const [matchData, setMatchData] = useState({});
-  const [bestRole, setBestRole] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [bestRole, setBestRole]   = useState(null);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState("");
+  const fileRef = useRef();
+  const token   = localStorage.getItem("token");
+
+  const handleFile = (f) => {
+    if (f?.type === "application/pdf") { setFile(f); setError(""); }
+    else setError("Please upload a valid PDF file.");
+  };
 
   const handleUpload = async () => {
-    if (!file) {
-      setError("Please select a PDF resume first.");
-      return;
-    }
-
-    setError("");
-    const formData = new FormData();
-    formData.append("resume", file);
-
-    // Retrieve JWT from localStorage
-    const token = localStorage.getItem("token");
-
+    if (!file) { setError("Please select a resume first."); return; }
+    const fd = new FormData();
+    fd.append("resume", file);
     try {
-      setLoading(true);
-      const res = await axios.post("http://localhost:5000/upload", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      setLoading(true); setError("");
+      setSkills([]); setMatchData({}); setBestRole(null);
+      const res = await axios.post("http://localhost:5000/upload", fd, {
+        headers: token ? { Authorization:`Bearer ${token}` } : {},
       });
-
       setSkills(res.data.skills || []);
       setMatchData(res.data.match || {});
       setBestRole(res.data.bestRole);
     } catch (err) {
-      if (err.response?.status === 401) {
-        setError("Session expired. Please log in again.");
-        localStorage.removeItem("token");
-        window.location.reload();
-      } else {
-        setError("Upload failed. Make sure the Python NLP service is running.");
-      }
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+      if (err.response?.status === 401) { localStorage.removeItem("token"); window.location.reload(); }
+      setError("Upload failed. Is the NLP server running?");
+    } finally { setLoading(false); }
   };
 
+  const scoreColor = (s) => {
+    const n = parseInt(s);
+    if (n >= 70) return "#3b6ef8";
+    if (n >= 40) return "#6c63ff";
+    return "#94a3b8";
+  };
+
+  const hasResults = skills.length > 0 || Object.keys(matchData).length > 0;
+
   return (
-    <div className="bg-gray-900 p-8 rounded-2xl shadow-xl text-center w-[400px]">
-      <h2 className="text-xl font-semibold mb-4">Upload Resume</h2>
+    <section className="py-8 px-6">
+      <div className="max-w-5xl mx-auto">
 
-      {/* File Input */}
-      <input
-        type="file"
-        accept=".pdf"
-        className="mb-4 text-sm text-gray-300"
-        onChange={(e) => {
-          setFile(e.target.files[0]);
-          setError("");
-        }}
-      />
+        {/* Upload card */}
+        <div className="glass rounded-3xl p-8 mb-6">
+          <h2 className="text-xl font-bold mb-1" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>Analyze Your Resume</h2>
+          <p className="text-sm mb-6" style={{color:"var(--text-2)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>Upload a PDF and get your career match report in seconds.</p>
 
-      {/* Upload Button */}
-      <button
-        onClick={handleUpload}
-        className="w-full bg-blue-500 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
-      >
-        {loading ? "Processing..." : "Upload"}
-      </button>
+          {/* Drop zone */}
+          <div
+            onClick={() => fileRef.current.click()}
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]); }}
+            className="cursor-pointer rounded-2xl p-10 text-center transition-all duration-200"
+            style={{
+              border: `2px dashed ${isDragging ? "#3b6ef8" : file ? "rgba(59,110,248,0.4)" : "rgba(180,190,220,0.5)"}`,
+              background: isDragging ? "rgba(59,110,248,0.04)" : "rgba(255,255,255,0.4)",
+              boxShadow: isDragging ? "0 0 0 4px rgba(59,110,248,0.08)" : "none",
+            }}>
+            <input ref={fileRef} type="file" accept=".pdf" className="hidden"
+              onChange={(e) => handleFile(e.target.files[0])} />
+            <div className="text-3xl mb-3">{file ? "📄" : "☁️"}</div>
+            {file ? (
+              <>
+                <p className="text-sm font-semibold" style={{color:"#3b6ef8",fontFamily:'Plus Jakarta Sans,sans-serif'}}>{file.name}</p>
+                <p className="text-xs mt-1" style={{color:"var(--text-3)"}}>{(file.size/1024).toFixed(1)} KB · Click to change</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium" style={{color:"var(--text-2)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>Drop your resume here</p>
+                <p className="text-xs mt-1" style={{color:"var(--text-3)"}}>or click to browse · PDF only</p>
+              </>
+            )}
+          </div>
 
-      {/* Error */}
-      {error && (
-        <div className="mt-4 bg-red-900/40 border border-red-600 text-red-300 text-sm rounded-lg px-4 py-3">
-          {error}
-        </div>
-      )}
+          {error && (
+            <div className="mt-4 rounded-xl px-4 py-3 text-sm"
+              style={{ background:"rgba(244,63,126,0.07)", border:"1px solid rgba(244,63,126,0.18)", color:"#e11d6a" }}>{error}</div>
+          )}
 
-      {/* Best Role */}
-      {bestRole && (
-        <div className="mt-6 text-center bg-green-900 p-4 rounded-xl">
-          <h2 className="text-lg font-semibold text-green-400">
-            ⭐ Best Career Match
-          </h2>
-          <p className="text-xl font-bold capitalize mt-2">
-            {bestRole.role} ({bestRole.score}%)
-          </p>
-        </div>
-      )}
-
-      {/* Skills */}
-      {skills.length > 0 && (
-        <div className="mt-6 text-left">
-          <h3 className="text-lg font-semibold mb-2 text-blue-400">
-            Extracted Skills:
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill, i) => (
-              <span
-                key={i}
-                className="bg-gray-800 px-3 py-1 rounded-full text-sm"
-              >
-                {skill}
+          <button onClick={handleUpload} disabled={loading || !file}
+            className="btn-primary w-full mt-4 py-3.5 rounded-xl text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                Analyzing…
               </span>
-            ))}
-          </div>
+            ) : "Analyze Resume →"}
+          </button>
         </div>
-      )}
 
-      {/* Match Dashboard */}
-      {Object.keys(matchData).length > 0 && (
-        <div className="mt-6 text-left">
-          <h3 className="text-lg font-semibold text-green-400 mb-4">
-            Career Match Analysis
-          </h3>
-          <div className="space-y-4">
-            {Object.entries(matchData).map(([role, data]) => (
-              <div key={role} className="bg-gray-800 p-4 rounded-xl shadow-md">
-                <div className="flex justify-between mb-2">
-                  <span className="font-semibold capitalize">{role}</span>
-                  <span className="text-blue-400 font-bold">{data.score}%</span>
+        {/* Results */}
+        {hasResults && (
+          <div className="space-y-5">
+            {/* Best match banner */}
+            {bestRole && (
+              <div className="glass rounded-3xl p-6 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{color:"var(--text-3)"}}>Best Career Match</p>
+                  <h3 className="text-xl font-bold capitalize gradient-text" style={{fontFamily:'Plus Jakarta Sans,sans-serif'}}>
+                    ⭐ {bestRole.role}
+                  </h3>
                 </div>
-                <div className="w-full bg-gray-700 h-2 rounded-full mb-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: `${data.score}%` }}
-                  />
+                <div className="text-right">
+                  <span className="text-4xl font-extrabold gradient-text" style={{fontFamily:'Plus Jakarta Sans,sans-serif'}}>{bestRole.score}%</span>
+                  <p className="text-xs mt-0.5" style={{color:"var(--text-3)"}}>compatibility</p>
                 </div>
-                <p className="text-sm text-gray-400">
-                  Missing: {data.missing.join(", ") || "None 🎉"}
-                </p>
               </div>
-            ))}
+            )}
+
+            <div className="grid md:grid-cols-2 gap-5">
+              {/* Skills */}
+              {skills.length > 0 && (
+                <div className="glass rounded-2xl p-6">
+                  <h3 className="font-bold text-sm mb-3 flex items-center gap-2" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>
+                    🧠 Extracted Skills
+                    <span className="ml-auto text-xs font-normal" style={{color:"var(--text-3)"}}>{skills.length} found</span>
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {skills.map((s,i) => <span key={i} className="skill-pill">{s}</span>)}
+                  </div>
+                </div>
+              )}
+
+              {/* Match */}
+              {Object.keys(matchData).length > 0 && (
+                <div className="glass rounded-2xl p-6">
+                  <h3 className="font-bold text-sm mb-4" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>🎯 Career Match</h3>
+                  <div className="space-y-4">
+                    {Object.entries(matchData).map(([role, data]) => (
+                      <div key={role}>
+                        <div className="flex justify-between mb-1.5">
+                          <span className="text-sm font-medium capitalize" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>{role}</span>
+                          <span className="text-sm font-bold" style={{color:scoreColor(data.score)}}>{data.score}%</span>
+                        </div>
+                        <div className="progress-track">
+                          <div className="progress-fill" style={{width:`${data.score}%`, background:`linear-gradient(90deg, ${scoreColor(data.score)}, #6c63ff)`}} />
+                        </div>
+                        {data.missing?.length > 0 && (
+                          <p className="text-xs mt-1" style={{color:"var(--text-3)"}}>Missing: {data.missing.join(", ")}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </section>
   );
 }
-
-export default UploadResume;

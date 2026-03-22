@@ -1,24 +1,50 @@
 import React from "react";
 
-function Hero() {
+export default function Hero({ onAnalyze, onHowItWorks }) {
   return (
-    <div className="text-center mt-20 px-6">
-      
-      <h1 className="text-5xl font-bold leading-tight">
-        Discover Your Perfect Career
-      </h1>
+    <section className="relative min-h-[88vh] flex items-center justify-center text-center px-6 overflow-hidden">
+      <div className="relative z-10 max-w-3xl mx-auto">
 
-      <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-        AI-powered resume analysis and career guidance platform
-        to help you choose the right path and grow faster.
-      </p>
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 fade-up glass"
+          style={{ fontSize:"0.72rem", fontWeight:600, letterSpacing:"0.08em", color:"#3b6ef8", textTransform:"uppercase" }}>
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block" />
+          AI-Powered Career Guidance
+        </div>
 
-      <button className="mt-6 bg-blue-500 px-6 py-3 rounded-lg text-lg hover:bg-blue-600">
-        Get Started
-      </button>
+        {/* Headline — mix serif italic with sans */}
+        <h1 className="font-bold leading-tight mb-6 fade-up-1"
+          style={{ fontSize:"clamp(2.8rem,7vw,5rem)", color:"var(--text)", fontFamily:'Plus Jakarta Sans,sans-serif' }}>
+          Find your{" "}
+          <span style={{ fontFamily:"'Instrument Serif',serif", fontStyle:"italic" }}
+            className="gradient-text">perfect career</span>
+          <br />with AI
+        </h1>
 
-    </div>
+        <p className="text-lg max-w-xl mx-auto mb-10 leading-relaxed fade-up-2"
+          style={{ color:"var(--text-2)", fontFamily:'Plus Jakarta Sans,sans-serif' }}>
+          Upload your resume. Our AI extracts your skills, scores you against real job roles,
+          and tells you exactly what to learn next.
+        </p>
+
+        {/* CTA */}
+        <div className="flex flex-col sm:flex-row gap-3 justify-center fade-up-3">
+          <button onClick={onAnalyze} className="btn-primary px-8 py-3.5 rounded-xl text-sm">
+            Analyze My Resume →
+          </button>
+          <button onClick={onHowItWorks} className="btn-ghost px-8 py-3.5 rounded-xl text-sm">
+            See How It Works
+          </button>
+        </div>
+
+        {/* Trust strip */}
+        <div className="flex flex-wrap justify-center gap-3 mt-14 fade-up-4">
+          {["⚡ Instant results","🎯 Role matching","🔐 JWT secured","📊 Skill gap report"].map((t,i) => (
+            <span key={i} className="glass text-xs px-4 py-2 rounded-full font-medium"
+              style={{ color:"var(--text-2)", fontFamily:'Plus Jakarta Sans,sans-serif' }}>{t}</span>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
-
-export default Hero;

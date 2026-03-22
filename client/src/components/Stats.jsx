@@ -1,35 +1,23 @@
 import React from "react";
-
-function Stats() {
+const stats = [
+  { value:"3",    label:"Service Architecture", sub:"React · Node · Python",   icon:"🏗️" },
+  { value:"100+", label:"Skills Detected",       sub:"Across all domains",       icon:"🧠" },
+  { value:"JWT",  label:"Secured Auth",          sub:"Bcrypt + MongoDB",         icon:"🔐" },
+  { value:"3+",   label:"Career Roles",          sub:"& expanding",              icon:"🎯" },
+];
+export default function Stats() {
   return (
-    <div className="bg-gray-800 mt-20 py-10">
-      
-      <div className="grid grid-cols-2 md:grid-cols-4 text-center gap-6">
-        
-        <div>
-          <h1 className="text-3xl font-bold text-blue-400">3M+</h1>
-          <p className="text-gray-400">Users Analyzed</p>
-        </div>
-
-        <div>
-          <h1 className="text-3xl font-bold text-blue-400">50K+</h1>
-          <p className="text-gray-400">Resumes Processed</p>
-        </div>
-
-        <div>
-          <h1 className="text-3xl font-bold text-blue-400">95%</h1>
-          <p className="text-gray-400">Accuracy</p>
-        </div>
-
-        <div>
-          <h1 className="text-3xl font-bold text-blue-400">100+</h1>
-          <p className="text-gray-400">Career Paths</p>
-        </div>
-
+    <section className="py-10 px-6">
+      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+        {stats.map((s,i) => (
+          <div key={i} className="glass rounded-2xl p-5 text-center">
+            <div className="text-xl mb-2">{s.icon}</div>
+            <div className="text-2xl font-extrabold gradient-text mb-0.5" style={{fontFamily:'Plus Jakarta Sans,sans-serif'}}>{s.value}</div>
+            <div className="text-sm font-semibold mb-0.5" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>{s.label}</div>
+            <div className="text-xs" style={{color:"var(--text-3)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>{s.sub}</div>
+          </div>
+        ))}
       </div>
-
-    </div>
+    </section>
   );
 }
-
-export default Stats;

@@ -1,40 +1,30 @@
 import React from "react";
-
-function Features() {
+const features = [
+  { icon:"📄", title:"Resume Analysis",  desc:"Our NLP engine scans your PDF and extracts every relevant skill — no guesswork.",          accent:"#3b6ef8" },
+  { icon:"🎯", title:"Career Matching",  desc:"Compatibility scores for Frontend, Backend, Data Science and more, calculated instantly.", accent:"#6c63ff" },
+  { icon:"🔍", title:"Skill Gap Report", desc:"See exactly what's missing for your dream role and build a focused learning plan.",          accent:"#0ea5c9" },
+];
+export default function Features() {
   return (
-    <div className="mt-20 px-10 text-center">
-      
-      <h1 className="text-3xl font-bold mb-10">
-        What We Offer
-      </h1>
-
-      <div className="grid md:grid-cols-3 gap-8">
-        
-        <div className="bg-gray-900 p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-2">Resume Analysis</h2>
-          <p className="text-gray-400">
-            Extract skills and insights from your resume using AI.
-          </p>
+    <section className="py-10 px-6">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold mb-2" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>
+            What we <span style={{fontFamily:"'Instrument Serif',serif",fontStyle:"italic"}} className="gradient-text">offer</span>
+          </h2>
+          <p className="text-sm" style={{color:"var(--text-2)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>Three powerful tools, one clean dashboard.</p>
         </div>
-
-        <div className="bg-gray-900 p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-2">Career Matching</h2>
-          <p className="text-gray-400">
-            Match your profile with ideal job roles.
-          </p>
+        <div className="grid md:grid-cols-3 gap-5">
+          {features.map((f,i) => (
+            <div key={i} className="glass rounded-2xl p-6">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4"
+                style={{ background:`${f.accent}14`, border:`1px solid ${f.accent}25` }}>{f.icon}</div>
+              <h3 className="font-bold text-base mb-2" style={{color:"var(--text)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>{f.title}</h3>
+              <p className="text-sm leading-relaxed" style={{color:"var(--text-2)",fontFamily:'Plus Jakarta Sans,sans-serif'}}>{f.desc}</p>
+            </div>
+          ))}
         </div>
-
-        <div className="bg-gray-900 p-6 rounded-xl shadow-lg">
-          <h2 className="text-xl font-semibold mb-2">Skill Gap Analysis</h2>
-          <p className="text-gray-400">
-            Discover what skills you need to improve.
-          </p>
-        </div>
-
       </div>
-
-    </div>
+    </section>
   );
 }
-
-export default Features;
