@@ -1,5 +1,8 @@
 from flask import Flask, request, jsonify
 import spacy
+import os
+import re
+import uuid
 from pdfminer.high_level import extract_text
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -32,7 +35,7 @@ SKILL_LIST = [
     "networking", "ethical hacking", "firewalls", "siem", "cryptography",
 ]
 
-# ─── All variations that should map to a canonical skill ──────
+# ─── Alias normalization ──────────────────────────────────────
 ALIASES = {
     "html5":          "html",
     "css3":           "css",
@@ -49,40 +52,28 @@ ALIASES = {
     "sklearn":        "scikit-learn",
     "ci/cd":          "git",
     "github":         "git",
-    "vs code":        "git",          # dev tool context
-    "javascript":     "javascript",
     "java script":    "javascript",
 }
 
 
 def normalize(text):
-    """Lowercase and replace all known aliases in the raw text."""
     t = text.lower()
-    # Sort by length descending so longer aliases matched first
     for alias, canonical in sorted(ALIASES.items(), key=lambda x: -len(x[0])):
         t = t.replace(alias, canonical)
     return t
 
 
 def extract_skills(raw_text):
-    """
-    1. Normalize aliases (html5 → html, node.js → node etc.)
-    2. Direct substring match against SKILL_LIST  ← most reliable
-    3. spaCy lemmatized match as fallback for morphological variations
-    """
     normalized = normalize(raw_text)
-
     detected = set()
 
-    # ── Pass 1: direct substring match on normalized text ────────
+    # Pass 1: direct regex word-boundary match
     for skill in SKILL_LIST:
-        # Use word-boundary style check: skill surrounded by non-alphanumeric
-        import re
         pattern = r'(?<![a-z0-9])' + re.escape(skill) + r'(?![a-z0-9])'
         if re.search(pattern, normalized):
             detected.add(skill)
 
-    # ── Pass 2: spaCy lemmatization for remaining skills ─────────
+    # Pass 2: spaCy lemmatization fallback
     doc = nlp(normalized)
     lemmas = " ".join([
         token.lemma_ for token in doc
@@ -101,13 +92,8 @@ def extract_skills(raw_text):
 
 
 def rank_skills_tfidf(raw_text, detected_skills):
-    """
-    Rank detected skills by TF-IDF cosine similarity.
-    Falls back to detected order if ranking fails.
-    """
     if not detected_skills:
         return []
-
     try:
         corpus = [raw_text.lower()] + [
             f"{skill} {skill} experience proficient {skill}"
@@ -116,11 +102,9 @@ def rank_skills_tfidf(raw_text, detected_skills):
         vec = TfidfVectorizer(ngram_range=(1, 2))
         mat = vec.fit_transform(corpus)
         sims = cosine_similarity(mat[0:1], mat[1:]).flatten()
-
         scored = sorted(zip(detected_skills, sims), key=lambda x: -x[1])
         ranked = [s for s, _ in scored]
         return ranked if ranked else detected_skills
-
     except Exception:
         return detected_skills
 
@@ -128,20 +112,29 @@ def rank_skills_tfidf(raw_text, detected_skills):
 @app.route("/analyze", methods=["POST"])
 def analyze():
     file = request.files["resume"]
-    file.save("temp.pdf")
 
-    raw_text = extract_text("temp.pdf")
+    # Unique filename — safe for concurrent uploads, no leftover files
+    file_path = f"temp_{uuid.uuid4().hex}.pdf"
+    file.save(file_path)
 
-    if not raw_text or not raw_text.strip():
-        return jsonify({"skills": [], "error": "Could not extract text from PDF"}), 400
+    try:
+        raw_text = extract_text(file_path)
 
-    detected = extract_skills(raw_text)
-    ranked   = rank_skills_tfidf(raw_text, detected)
+        if not raw_text or not raw_text.strip():
+            return jsonify({"skills": [], "error": "Could not extract text from PDF"}), 400
 
-    return jsonify({
-        "skills":      ranked,
-        "total_found": len(ranked),
-    })
+        detected = extract_skills(raw_text)
+        ranked   = rank_skills_tfidf(raw_text, detected)
+
+        return jsonify({
+            "skills":      ranked,
+            "total_found": len(ranked),
+        })
+
+    finally:
+        # Always delete the temp file, even if an error occurs
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 
 if __name__ == "__main__":
