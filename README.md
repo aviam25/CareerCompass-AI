@@ -12,22 +12,23 @@
 
 ## 📌 Overview
 
-CareerCompass AI is a full-stack web application that helps users understand their career alignment by analyzing their resumes using Natural Language Processing (NLP). It extracts skills from uploaded PDF resumes, evaluates compatibility with different job roles, identifies skill gaps, and recommends the most suitable career path — all behind a secure JWT-authenticated interface with a modern glassmorphism UI.
+CareerCompass AI is an AI-powered web application that analyzes resumes to help users discover their ideal career path. Using NLP techniques like spaCy-based skill extraction and TF-IDF scoring, it identifies key skills, matches them with relevant job roles, highlights skill gaps, and provides personalized career recommendations — all within a secure, modern full-stack platform.
 
 ---
 
 ## ✨ Features
 
-- 🔐 **JWT Authentication** — Secure register/login with bcrypt password hashing
-- 📄 **Drag & Drop Resume Upload** — PDF support via Multer with live visual feedback
-- 🤖 **NLP Skill Extraction** — Python + spaCy based skill detection
-- 🎯 **Job Role Matching** — Algorithm matches extracted skills to predefined career roles
-- 📊 **Match Percentage** — Score calculated for each career path with visual progress bars
-- ⚠️ **Skill Gap Analysis** — Identifies missing skills per role
-- ⭐ **Best Role Recommendation** — Highlights the top matching career
-- 🕓 **Analysis History** — Save, view and delete past resume analyses
-- 🎨 **Glassmorphism UI** — Soft frosted-glass design system (Linear/Vercel inspired)
-- ☁️ **Cloud Database** — MongoDB Atlas for persistent user and analysis storage
+- 🔐 JWT Authentication with bcrypt security
+- 📄 Drag & Drop Resume Upload (PDF)
+- 🤖 NLP Skill Extraction using spaCy (lemmatization + smart matching)
+- 🧠 TF-IDF Based Skill Ranking
+- 🎯 Career Role Matching with match % score
+- ⚠️ Skill Gap Analysis for each role
+- ⭐ Best Role Recommendation
+- 📊 Dashboard with visual insights & progress bars
+- 🕓 Analysis History (save & manage reports)
+- ☁️ MongoDB Atlas cloud storage
+- 🎨 Modern Glassmorphism UI
 
 ---
 
@@ -35,12 +36,13 @@ CareerCompass AI is a full-stack web application that helps users understand the
 
 | Layer | Technology |
 |---|---|
-| Frontend | React.js 19, Tailwind CSS, Axios |
+| Frontend | React.js, Tailwind CSS, Axios |
 | State Management | React AuthContext (global session) |
-| Backend | Node.js, Express.js, Multer |
+| Backend | Node.js, Express.js |
+| File Handling | Multer (PDF uploads) |
 | Authentication | JWT, bcryptjs |
 | Database | MongoDB Atlas, Mongoose |
-| AI / NLP | Python, Flask, spaCy, pdfminer.six |
+| AI / NLP | Python, Flask, spaCy (lemmatization, NLP pipeline), TF-IDF, pdfminer.six (Resume Parsing) |
 
 ---
 
@@ -220,10 +222,12 @@ NLP service runs at `http://localhost:8000`
 
 ## 📸 Screenshots
 
-<img width="1862" height="853" alt="Image" src="https://github.com/user-attachments/assets/03a78bb6-87b3-4280-a4d7-984953efdab5" />
-<img width="1877" height="906" alt="Image" src="https://github.com/user-attachments/assets/2fe5101a-7b83-477e-ae09-aebb14a60109" />
-<img width="1877" height="885" alt="Image" src="https://github.com/user-attachments/assets/ff6786bd-b654-44a1-86b5-35069ee0c90d" />
-<img width="1805" height="907" alt="Image" src="https://github.com/user-attachments/assets/7d9b3490-e12f-4106-92ed-261dcc6e5441" />
+<img width="1545" height="905" alt="image" src="https://github.com/user-attachments/assets/d20a83a6-2a31-4dbb-ac77-5c42676fba61" />
+<img width="1528" height="887" alt="image" src="https://github.com/user-attachments/assets/a4fd784d-7201-4b9a-82f8-08f63f905a17" />
+<img width="1492" height="872" alt="image" src="https://github.com/user-attachments/assets/f4d07baa-d6b5-4808-a129-adaf52e8a0e0" />
+<img width="1525" height="915" alt="image" src="https://github.com/user-attachments/assets/d1f1a3ae-111a-4147-883d-54baebb9162a" />
+<img width="1548" height="907" alt="image" src="https://github.com/user-attachments/assets/61bba60a-38d9-4320-bc73-997d8da0d8a0" />
+<img width="1516" height="925" alt="image" src="https://github.com/user-attachments/assets/a058912d-b2dd-4595-a60a-d7122f2c9e6d" />
 
 ---
 
@@ -257,5 +261,3 @@ Built by **Avi Mishra** — feel free to connect or raise an issue for feedback 
 ---
 
 ⭐ If you find this project useful, consider giving it a star!
-
-[def]: image-5.png
