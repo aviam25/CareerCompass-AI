@@ -135,8 +135,8 @@ CareerCompass-AI/
 │   ├── routes/                # Auth routes (register, login, /me)
 │   ├── server.js
 │   └── .env                   # Environment variables (not committed)
-└── ml-service/                # Python NLP service
-    └── app.py
+└── ml-service/                # AI and NLP service
+    └── app.py                 # spaCy, TF-IDF, Flask, OpenAI
 ```
 
 ---
